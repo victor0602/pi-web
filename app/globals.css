@@ -2066,6 +2066,69 @@ pre, code {
   }
 }
 
+/* The installer's logo over a blank composer (PiLogoSplash). Cells are
+   the script's blocks: 30px squares, no gap, no radius (lib/pi-logo-animation.ts
+   LOGO_CELL_PX). Empty cells are the page, so only the pieces are painted. */
+.pi-logo-splash {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 0;
+  padding: 24px;
+  overflow: auto;
+  border: none;
+  background: var(--bg);
+  color: var(--text-dim);
+  font: inherit;
+  cursor: pointer;
+}
+
+.pi-logo-stage {
+  position: relative;
+  width: 240px;
+  height: 270px;
+  flex: none;
+}
+
+.pi-logo-piece {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.pi-logo-cell {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 0;
+}
+
+.pi-logo-splash:focus {
+  outline: none;
+}
+
+.pi-logo-splash:focus-visible .pi-logo-splash-hint {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.pi-logo-splash-hint {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pi-logo-piece {
+    will-change: auto;
+  }
+}
+
 /* The project and worktree picker (ProjectWorktreePicker). The files' (the
    tab's stacked boxes, the row below the sessions), as the sidebar drew it
    on main: two grey boxes in the header buttons' material, 11px, the

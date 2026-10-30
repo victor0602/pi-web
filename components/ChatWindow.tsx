@@ -19,6 +19,8 @@ import { MarkdownBody } from "./MarkdownBody";
 import { ChatInput, type ChatInputHandle } from "./ChatInput";
 import { ChatMinimap, useMessageRefs } from "./ChatMinimap";
 import { ExtensionStatusBar } from "./ExtensionStatusBar";
+import { PiLogoSplash } from "./PiLogoSplash";
+import { readLogoSplashPlayed, reduceLogoSplash, writeLogoSplashPlayed, type LogoSplashGate } from "@/lib/pi-logo-animation";
 import { AnsiText } from "./AnsiText";
 import { useI18n } from "@/hooks/useI18n";
 import { phaseLabel } from "@/lib/chat-phase-label";
@@ -844,6 +846,33 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
 
   const isEmptyNew = isNew && messages.length === 0 && !isStreaming && !sessionBusy;
   useScrollbarVisibility(scrollContainerRef, Boolean(session?.id) || !isEmptyNew);
+  // The installer's logo, once, the first time this browser session opens a
+  // blank composer. A session that already has history never qualifies
+  // (`isEmptyNew` is the fresh composer only), and the claim survives the
+  // effect running twice so the splash is not hidden as soon as it is shown.
+  const logoSplashGateRef = useRef<LogoSplashGate>({ claimed: false, visible: false });
+  const [logoSplashVisible, setLogoSplashVisible] = useState(false);
+  useEffect(() => {
+    let storage: Storage | null = null;
+    try {
+      storage = window.sessionStorage;
+    } catch {
+      storage = null;
+    }
+    const next = reduceLogoSplash(logoSplashGateRef.current, {
+      blank: isEmptyNew,
+      alreadyPlayed: readLogoSplashPlayed(storage),
+    });
+    logoSplashGateRef.current = next.state;
+    if (next.persistPlayed) writeLogoSplashPlayed(storage);
+    setLogoSplashVisible(next.state.visible);
+  }, [isEmptyNew]);
+  const dismissLogoSplash = useCallback(() => {
+    logoSplashGateRef.current = { claimed: true, visible: false };
+    setLogoSplashVisible(false);
+    // A phone would open the software keyboard if the composer took focus.
+    if (!isMobile) chatInputRef?.current?.focus();
+  }, [chatInputRef, isMobile]);
   const messageCwd = session?.cwd ?? newSessionCwd ?? undefined;
   const promptAnchorSpacerRef = useRef<HTMLDivElement | null>(null);
   const promptAnchorSpacerHeightRef = useRef(0);
@@ -1520,6 +1549,7 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
         />
       </div>
       {isEmptyNew && <div className="min-h-0 flex-1" />}
+      {logoSplashVisible && isEmptyNew && <PiLogoSplash onDone={dismissLogoSplash} />}
     </div>
   );
 }

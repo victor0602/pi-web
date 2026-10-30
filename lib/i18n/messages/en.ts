@@ -784,6 +784,7 @@ export const enLocale: LocalePlugin = {
     "chat.askSelection": "Ask about selected text",
     "chat.askInCurrent": "Ask here",
     "chat.askInNewChat": "Ask in new chat",
+    "chat.logoSplashSkip": "Click or press Escape to skip",
     "chat.newQuoteChat": "New chat about selected text",
     "chat.quoteIntro": "About this passage:",
     "chat.quoteQuestion": "My question:",
